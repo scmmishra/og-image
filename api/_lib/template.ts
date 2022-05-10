@@ -39,7 +39,7 @@ function getCss(pattern: string, theme: string) {
     moon: `background-image: radial-gradient( ellipse farthest-corner at 42px 42px , ${patternForeground}, ${patternForeground} 50%, ${patternBackground} 50%); background-size: 42px 42px;`,
     polka: `background-image: radial-gradient(${patternForeground} 2px, ${patternBackground} 2px); background-size: 32px 32px;`,
     diagonal: `background-image: repeating-linear-gradient(45deg, ${patternForeground} 0, ${patternForeground} 3px, ${patternBackground} 0, ${patternBackground} 50%); background-size: 28px 28px;`,
-    triange: `background-image: linear-gradient(45deg, ${patternForeground} 50%, ${patternBackground} 50%); background-size: 32px 32px;`,
+    triangle: `background-image: linear-gradient(45deg, ${patternForeground} 50%, ${patternBackground} 50%); background-size: 32px 32px;`,
     cross: `background: radial-gradient(circle, transparent 20%, ${patternBackground} 20%, ${patternBackground} 80%, transparent 80%, transparent), radial-gradient(circle, transparent 20%, ${patternBackground} 20%, ${patternBackground} 80%, transparent 80%, transparent) 35px 35px, linear-gradient(${patternForeground} 2.8000000000000003px, transparent 2.8000000000000003px) 0 -1.4000000000000001px, linear-gradient(90deg, ${patternForeground} 2.8000000000000003px, ${patternBackground} 2.8000000000000003px) -1.4000000000000001px 0; background-size: 70px 70px, 70px 70px, 35px 35px, 35px 35px;`,
   };
 
