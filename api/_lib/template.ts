@@ -1,27 +1,51 @@
+import { readFileSync } from "fs";
+import { marked } from "marked";
+import { sanitizeHtml } from "./sanitizer";
+import { ParsedRequest } from "./types";
+import colors from "./colors";
 
-import { readFileSync } from 'fs';
-import { marked } from 'marked';
-import { sanitizeHtml } from './sanitizer';
-import { ParsedRequest } from './types';
-const twemoji = require('twemoji');
-const twOptions = { folder: 'svg', ext: '.svg' };
+const twemoji = require("twemoji");
+const twOptions = { folder: "svg", ext: ".svg" };
 const emojify = (text: string) => twemoji.parse(text, twOptions);
 
-const rglr = readFileSync(`${__dirname}/../_fonts/Inter-Regular.woff2`).toString('base64');
-const bold = readFileSync(`${__dirname}/../_fonts/Inter-Bold.woff2`).toString('base64');
-const mono = readFileSync(`${__dirname}/../_fonts/Vera-Mono.woff2`).toString('base64');
+const rglr = readFileSync(
+  `${__dirname}/../_fonts/Inter-Regular.woff2`
+).toString("base64");
 
-function getCss(theme: string, fontSize: string) {
-    let background = 'white';
-    let foreground = 'black';
-    let radial = 'lightgray';
+const bold = readFileSync(`${__dirname}/../_fonts/Inter-Bold.woff2`).toString(
+  "base64"
+);
 
-    if (theme === 'dark') {
-        background = 'black';
-        foreground = 'white';
-        radial = 'dimgray';
-    }
-    return `
+const colorMap: Record<string, string> = {
+  juniper: colors.juniper.DEFAULT,
+  lilac: colors.lilac,
+  cherry: colors.cherry.DEFAULT,
+  lavender: colors.lavender,
+  robin: colors.robin.DEFAULT,
+  vanilla: colors.vanilla[100],
+  honey: colors.honey.DEFAULT,
+};
+
+function getCss(pattern: string, theme: string) {
+  let patternCSS = "";
+
+  const patternForeground = colorMap[theme]
+    ? colorMap[theme]
+    : colors.juniper.DEFAULT;
+  const patternBackground = colors.ink[400];
+
+  const patternMap: Record<string, string> = {
+    wavy: `background-image:  repeating-radial-gradient( circle at 0 0, transparent 0, ${patternBackground} 32px ), repeating-linear-gradient( ${patternForeground}55, ${patternForeground} );`,
+    moon: `background-image: radial-gradient( ellipse farthest-corner at 42px 42px , ${patternForeground}, ${patternForeground} 50%, ${patternBackground} 50%); background-size: 42px 42px;`,
+    polka: `background-image: radial-gradient(${patternForeground} 2px, ${patternBackground} 2px); background-size: 32px 32px;`,
+    diagonal: `background-image: repeating-linear-gradient(45deg, ${patternForeground} 0, ${patternForeground} 3px, ${patternBackground} 0, ${patternBackground} 50%); background-size: 28px 28px;`,
+    triange: `background-image: linear-gradient(45deg, ${patternForeground} 50%, ${patternBackground} 50%); background-size: 32px 32px;`,
+    cross: `background: radial-gradient(circle, transparent 20%, ${patternBackground} 20%, ${patternBackground} 80%, transparent 80%, transparent), radial-gradient(circle, transparent 20%, ${patternBackground} 20%, ${patternBackground} 80%, transparent 80%, transparent) 35px 35px, linear-gradient(${patternForeground} 2.8000000000000003px, transparent 2.8000000000000003px) 0 -1.4000000000000001px, linear-gradient(90deg, ${patternForeground} 2.8000000000000003px, ${patternBackground} 2.8000000000000003px) -1.4000000000000001px 0; background-size: 70px 70px, 70px 70px, 35px 35px, 35px 35px;`,
+  };
+
+  patternCSS = patternMap[pattern] ? patternMap[pattern] : "";
+
+  return `
     @font-face {
         font-family: 'Inter';
         font-style:  normal;
@@ -36,17 +60,10 @@ function getCss(theme: string, fontSize: string) {
         src: url(data:font/woff2;charset=utf-8;base64,${bold}) format('woff2');
     }
 
-    @font-face {
-        font-family: 'Vera';
-        font-style: normal;
-        font-weight: normal;
-        src: url(data:font/woff2;charset=utf-8;base64,${mono})  format("woff2");
-      }
-
     body {
-        background: ${background};
-        background-image: radial-gradient(circle at 25px 25px, ${radial} 2%, transparent 0%), radial-gradient(circle at 75px 75px, ${radial} 2%, transparent 0%);
-        background-size: 100px 100px;
+        ${patternCSS}
+        background-color: ${patternBackground};
+        opacity: 1;
         height: 100vh;
         display: flex;
         text-align: center;
@@ -54,11 +71,29 @@ function getCss(theme: string, fontSize: string) {
         justify-content: center;
     }
 
+    .wrapper {
+      padding: 100px 50px;
+      width: 80%;
+      height: 70%;
+      margin: 0px auto;
+      
+      background: rgba(22, 24, 29, 0.75);
+      border-radius: 18px;
+      background-blend-mode: darken, luminosity;
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(238, 238, 238, 0.1);
+
+
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
     code {
-        color: #D400FF;
-        font-family: 'Vera';
+        color: ${colors.juniper.DEFAULT};
+        font-family: Menlo;
         white-space: pre-wrap;
-        letter-spacing: -5px;
     }
 
     code:before, code:after {
@@ -73,20 +108,6 @@ function getCss(theme: string, fontSize: string) {
         justify-items: center;
     }
 
-    .logo {
-        margin: 0 75px;
-    }
-
-    .plus {
-        color: #BBB;
-        font-family: Times New Roman, Verdana;
-        font-size: 100px;
-    }
-
-    .spacer {
-        margin: 150px;
-    }
-
     .emoji {
         height: 1em;
         width: 1em;
@@ -96,51 +117,63 @@ function getCss(theme: string, fontSize: string) {
     
     .heading {
         font-family: 'Inter', sans-serif;
-        font-size: ${sanitizeHtml(fontSize)};
+        font-size: 96px;
+        font-weight: 800;
         font-style: normal;
-        color: ${foreground};
+        color: ${colors.vanilla[100]};
+        line-height: 1.8;
+    }
+
+    .subtitle {
+        font-family: 'Inter', sans-serif;
+        font-size: 40px;
+        font-weight: 400;
+        max-width: 65%;
+        margin-left: auto;
+        margin-right: auto;
+        font-style: normal;
+        margin-top: -80px;
+        color: ${colors.vanilla[200]};
         line-height: 1.8;
     }`;
 }
 
 export function getHtml(parsedReq: ParsedRequest) {
-    const { text, theme, md, fontSize, images, widths, heights } = parsedReq;
-    return `<!DOCTYPE html>
+  const { title, subtitle, pattern, theme } = parsedReq;
+  return `<!DOCTYPE html>
 <html>
     <meta charset="utf-8">
     <title>Generated Image</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
-        ${getCss(theme, fontSize)}
+        ${getCss(pattern, theme)}
     </style>
     <body>
-        <div>
-            <div class="spacer">
-            <div class="logo-wrapper">
-                ${images.map((img, i) =>
-                    getPlusSign(i) + getImage(img, widths[i], heights[i])
-                ).join('')}
+        <div class="wrapper">
+          <section class="wrapper-body">
+            <div class="heading">${emojify(marked(title))}</div>
+            <div class="subtitle">
+            ${subtitle ? marked(subtitle) : ""}
             </div>
-            <div class="spacer">
-            <div class="heading">${emojify(
-                md ? marked(text) : sanitizeHtml(text)
-            )}
-            </div>
+          </section>
+          <div class="logo-wrapper">
+              ${getImage(
+                "https://assets.deepsource.io/cfa46a5/img/logo-wordmark-white.41979ab.svg",
+                "300px",
+                "auto"
+              )}
+          </div>
         </div>
     </body>
 </html>`;
 }
 
-function getImage(src: string, width ='auto', height = '225') {
-    return `<img
+function getImage(src: string, width = "auto", height = "225") {
+  return `<img
         class="logo"
         alt="Generated Image"
         src="${sanitizeHtml(src)}"
         width="${sanitizeHtml(width)}"
         height="${sanitizeHtml(height)}"
-    />`
-}
-
-function getPlusSign(i: number) {
-    return i === 0 ? '' : '<div class="plus">+</div>';
+    />`;
 }
